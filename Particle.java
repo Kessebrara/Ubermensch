@@ -6,6 +6,7 @@ public class Particle
     double velocity;
     double rotation;
     World world;
+    boolean destroying;
     
     public Particle(World world)
     {
@@ -34,8 +35,13 @@ public class Particle
     {
     }
     
-    public void destroy()
+    public void destroySelf()
     {
-        world.removeParticle(this);
+        destroying = true;
+    }
+    
+    public boolean isDestroyingSelf()
+    {
+        return destroying;
     }
 }

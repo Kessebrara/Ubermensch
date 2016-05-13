@@ -22,6 +22,7 @@ public class Enemy extends Actor
     @Override
     public void process(double time)
     {
+        super.process(time);
         if(location.distance(destination) > 0)
         {
             Circle nextCircle = new Circle(location, circle.getRadius());

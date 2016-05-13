@@ -5,6 +5,8 @@ public class Actor
     Point location;
     World world;
     Circle circle;
+    boolean destroying = false;
+    double age;
     
     public Actor(World world)
     {
@@ -22,15 +24,22 @@ public class Actor
     
     public void process(double time)
     {
+        age+= time;
+        if(age > 5)
+        destroySelf();
     }
     
     public void draw(GraphicsContext g)
     {
     }
     
-    public void destroy()
+    public void destroySelf()
     {
-        world.removeActor(this);
+        destroying = true;
     }
     
+    public boolean isDestroyingSelf()
+    {
+        return destroying;
+    }
 }

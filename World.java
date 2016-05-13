@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class World
 {
@@ -15,22 +16,24 @@ public class World
             for(Controller c: controllers)
             c.process(time);
             
-            for(Actor a: actors)
-            a.process(time);
+            Iterator<Actor> actorIt = actors.iterator();
+            while(actorIt.hasNext())
+            {
+                Actor actor = actorIt.next();
+                actor.process(time);
+                
+                if(actor.isDestroyingSelf())
+                actorIt.remove();
+            }
             
             for(Particle p: particles)
             {
                 p.process(time);
-                
-                for(Actor a: actors)
-                {
-                    if(a.circle.contains(p.location))
-                    {
-                        a.destroy();
-                        p.destroy();
-                    }
-                }
             }
+            
+            
+            removeActors();
+            removeParticles();
         }
         
         public boolean containsActor(Actor actor)
@@ -85,13 +88,54 @@ public class World
             return particles;
         }
         
-        public void removeParticle(Particle particle)
+        public void removeParticles()
         {
-            particles.remove(particle);
+            Iterator<Particle> iterator = particles.iterator();
+            while(iterator.hasNext())
+            {
+                Particle particle = iterator.next();
+                if(particle.destroying)
+                {
+                    iterator.remove();
+                    break;
+                }
+            }
         }
         
-        public void removeActor(Actor actor)
+        public void removeActors()
         {
-            actors.remove(actor);
+            Iterator<Actor> iterator = actors.iterator();
+            while(iterator.hasNext())
+            {
+                Actor actor = iterator.next();
+                if(actor.isDestroyingSelf())
+                {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        
+        public int getNumActors()
+        {
+            return actors.size();
+        }
+        
+        public Player getPlayer()
+        {
+            for(Actor a: actors)
+            if(a instanceof Player)
+            return (Player)a;
+            
+            return null;
+        }
+        
+        public PlayerController getPlayerController()
+        {
+            for(Controller c: controllers)
+            if(c instanceof PlayerController)
+            return (PlayerController)c;
+            
+            return null;
         }
 }

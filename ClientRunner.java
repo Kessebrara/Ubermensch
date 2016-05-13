@@ -20,7 +20,7 @@ import java.net.URL;
 import javafx.scene.input.MouseEvent;
 
 
-public class NextGen extends Application
+public class ClientRunner extends Application
 {
     static final int WIDTH = 800;
     static final int HEIGHT = 600;
@@ -29,8 +29,6 @@ public class NextGen extends Application
     Canvas canvas = new Canvas(WIDTH, HEIGHT);
     
     World world = new World();
-    Player player = new Player(world);
-    PlayerController playerController = new PlayerController(world, player);  
     Camera camera = new Camera(world);
     
     static long lastNanoTime = System.nanoTime();
@@ -55,20 +53,33 @@ public class NextGen extends Application
         ArrayList<String> input = new ArrayList<String>();
         
         // INITIATION
+        
+        world.addActor(new Player(world));
+        world.addController(new PlayerController(world, world.getPlayer()));
 
         scene.setOnKeyPressed(new EventHandler<KeyEvent>()
         {
             public void handle(KeyEvent e)
             {
-                playerController.keyStroke(e, true);
+                world.getPlayerController().keyStroke(e, true);
                 
                 String key = e.getCode().toString();
                 if(key == "SPACE")
                 {
                     ZombieEnemy enemy = new ZombieEnemy(world);
                     world.addActor(enemy);
-                    world.addController(new ZombieController(world, player, enemy));
+                    world.addController(new ZombieController(world, world.getPlayer(), enemy));
                     actors++;
+                }
+                
+                if(key == "Q")
+                {
+                    ArrayList<Actor> actors = world.getActors();
+                    for(Actor a: actors)
+                    if(a instanceof Player)
+                    {
+                        a.destroySelf();
+                    }
                 }
             }
         });
@@ -77,7 +88,7 @@ public class NextGen extends Application
         {
             public void handle(KeyEvent e)
             {
-                playerController.keyStroke(e, false);                
+                world.getPlayerController().keyStroke(e, false);                
             }
         });
         scene.setOnMousePressed(new EventHandler<MouseEvent>()
@@ -85,8 +96,8 @@ public class NextGen extends Application
             public void handle(MouseEvent e)
             {               
                 Bullet bullet = new Bullet(world);
-                bullet.setLocation(player.location);
-                bullet.setRotation(player.location.angle(new Point(e.getX(), e.getY())));
+                bullet.setLocation(world.getPlayer().location);
+                bullet.setRotation(world.getPlayer().location.angle(new Point(e.getX(), e.getY())));
             }
             
         });
@@ -120,7 +131,6 @@ public class NextGen extends Application
                 
                 // game logic
                 
-                playerController.process(elapsedTime);
                 world.process(elapsedTime);
                 
                 // collision detection
@@ -136,6 +146,9 @@ public class NextGen extends Application
                 g.setFill(Color.WHITE);
                 g.fillText("Frames Per Second = "+fps, 16, 16);
                 g.fillText("Actors = "+actors, 16, 40);
+                ArrayList<Actor> actors = world.getActors();
+                
+                g.fillText("Number actors = "+world.getNumActors(), 16, 88);
                 
             }
         }.start();

@@ -27,6 +27,7 @@ public class Player extends Actor
     @Override
     public void process(double time)
     {        
+        super.process(time);
         for(int i = lastLocation.length - 1; i > 0; i--)
         lastLocation[i] = new Point(lastLocation[i-1]);
         
